@@ -26,16 +26,106 @@ exports.initialize = function(pathsObj) {
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(callback) {
+  var myReadStream = fs.createReadStream(exports.paths.list, 'utf8');
+  var body = "";
+
+  myReadStream.on('data', function(chunk) {
+    body += chunk
+  });
+  myReadStream.on ('end', function() {
+    callback(body.split("\n"));
+    console.log("start");
+    exports.displayList();
+    console.log("end");
+  });
+
 };
 
 exports.isUrlInList = function(url, callback) {
+  // var myReadStream = fs.createReadStream(exports.paths.list, 'utf8');
+  // var body = "";
+  // myReadStream.on('data', function(chunk) {
+  //   body += chunk;
+  // });
+  // myReadStream.on ('end', function() {
+  //   callback(body);
+  // });
+  exports.readListOfUrls(function(listDataArray){
+    // if(listData.indexOf(url) < 0) {
+    //   callback(false);
+    // } else {
+    //   callback(true);
+    // }
+    if (listDataArray.includes(url)) {
+      callback(true)
+    } else {
+      callback(false);
+    }
+
+  });
+
+
+
+
 };
 
 exports.addUrlToList = function(url, callback) {
-};
+  
+//   var fs = require('fs');
 
+  fs.appendFile(exports.paths.list, url + '\n', function (err) {
+     if (err) throw err;
+     exports.displayList();
+  });
+
+  
+
+
+
+
+  // var myWriteStream = fs.createWriteStream(exports.paths.list);
+  // myWriteStream.write(url);
+  // myWriteStream.write('\n');
+  // myWriteStream.end();
+  
+
+
+
+
+  // var myWriteStream = fs.createWriteStream(exports.paths.list, 'utf8');
+  // myWriteStream.write(url);
+  // myWriteStream.on("end",function(){
+  //   //callback();
+  //   console.log("I am writing into the file " + url)
+  // })
+
+  // fs.writeFile(url,function(err){
+  //   console.log(err);
+  // })
+  // console.log("I have done writing to file " + url)
+
+};
+ 
 exports.isUrlArchived = function(url, callback) {
+	var completeUrl = exports.paths.archivedSites + "/" + url;
+  fs.exists(completeUrl,function(exists){
+    callback(exists);
+	});
 };
 
 exports.downloadUrls = function(urls) {
+};
+
+
+
+exports.displayList = function() {
+  var myReadStream = fs.createReadStream(exports.paths.list, 'utf8');
+  var body = "";
+
+  myReadStream.on('data', function(chunk) {
+    body += chunk
+  });
+  myReadStream.on ('end', function() {
+    console.log(body);
+  });
 };
