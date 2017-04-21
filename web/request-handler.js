@@ -42,9 +42,9 @@ exports.handleRequest = function (req, res) {
         if(!isURL){
           archive.addUrlToList(fileLocationUrl,function(){
           })
-          console.log("url is appended");
+          // console.log("url is appended");
         } else {
-        	console.log("url already exist");
+        	// console.log("url already exist");
         }
           res.writeHead(302, httpHelpers.headers);
           res.end();

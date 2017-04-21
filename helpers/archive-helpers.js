@@ -68,58 +68,31 @@ exports.isUrlArchived = function(url, callback) {
 
 exports.downloadUrls = function(urls) {
 	urls.forEach(function(eachUrl) {
-		exports.isUrlInList(eachUrl, function(existsList) {
-			// if the URL is not in the list
-			if(!existsList) {
-				exports.isUrlArchived(eachUrl, function(existsArchive) {
-					// if the URL and resource is not in the archive
-					if(!existsArchive) {
-						var file = fs.createWriteStream(exports.paths.archivedSites + '/' + eachUrl);
-						// then get the resource 
-						http.get('http://' + eachUrl + '/index.html', function(res) {
-					    	res.on('data', function(data) {
-					            file.write(data);
-					        }).on('end', function() {
-					            file.end();
-					            // console.log(eachUrl + ' is downloaded to ' + exports.paths.archivedSites + '/' + eachUrl + ' file');
-					        });
-					    });
-					}
-				})
-			}
+		var file = fs.createWriteStream(exports.paths.archivedSites + '/' + eachUrl);
+		http.get('http://' + eachUrl + '/index.html', function(res) {
+	    	res.on('data', function(data) {
+	            file.write(data);
+	        }).on('end', function() {
+	            file.end();
+	        });
 		})
 	})
 };
 
-exports.downloadUrls2 = function(urls) {
-	urls.forEach(function(eachUrl) {
-		exports.isUrlInList(eachUrl, function(existsList) {
-			// if the URL is in the list
-			if(existsList) {
-				exports.isUrlArchived(eachUrl, function(existsArchive) {
-					// if the URL and resource is not in the archive
-					if(!existsArchive) {
-						var file = fs.createWriteStream(exports.paths.archivedSites + '/' + eachUrl);
-						// then get the resource 
-						http.get('http://' + eachUrl + '/index.html', function(res) {
-					    	res.on('data', function(data) {
-					            file.write(data);
-					        }).on('end', function() {
-					            file.end();
-					            // console.log(eachUrl + ' is downloaded to ' + exports.paths.archivedSites + '/' + eachUrl + ' file');
-					        });
-					    });
-					}
-				})
-			}
-		})
+exports.downloadUrl = function(eachUrl) {
+	var file = fs.createWriteStream(exports.paths.archivedSites + '/' + eachUrl);
+	http.get('http://' + eachUrl + '/index.html', function(res) {
+    	res.on('data', function(data) {
+            file.write(data);
+        }).on('end', function() {
+            file.end();
+        });
 	})
 };
 
 exports.displayList = function() {
   var myReadStream = fs.createReadStream(exports.paths.list, 'utf8');
   var body = "";
-
   myReadStream.on('data', function(chunk) {
     body += chunk
   });
