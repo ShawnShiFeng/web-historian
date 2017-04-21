@@ -1,6 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var request = require('request');
+var http = require('http');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -34,89 +36,73 @@ exports.readListOfUrls = function(callback) {
   });
   myReadStream.on ('end', function() {
     callback(body.split("\n"));
-    console.log("start");
-    exports.displayList();
-    console.log("end");
   });
 
 };
 
 exports.isUrlInList = function(url, callback) {
-  // var myReadStream = fs.createReadStream(exports.paths.list, 'utf8');
-  // var body = "";
-  // myReadStream.on('data', function(chunk) {
-  //   body += chunk;
-  // });
-  // myReadStream.on ('end', function() {
-  //   callback(body);
-  // });
   exports.readListOfUrls(function(listDataArray){
-    // if(listData.indexOf(url) < 0) {
-    //   callback(false);
-    // } else {
-    //   callback(true);
-    // }
     if (listDataArray.includes(url)) {
       callback(true)
     } else {
       callback(false);
     }
-
   });
-
-
-
-
 };
 
 exports.addUrlToList = function(url, callback) {
-  
-//   var fs = require('fs');
-
-  fs.appendFile(exports.paths.list, url + '\n', function (err) {
-     if (err) throw err;
-     exports.displayList();
+  fs.appendFile(exports.paths.list, url + '\n','utf8', function (err) {
+     if (err) {
+     	throw err;
+     } else {
+     	// exports.displayList();
+     	callback();
+     }
   });
-
-  
-
-
-
-
-  // var myWriteStream = fs.createWriteStream(exports.paths.list);
-  // myWriteStream.write(url);
-  // myWriteStream.write('\n');
-  // myWriteStream.end();
-  
-
-
-
-
-  // var myWriteStream = fs.createWriteStream(exports.paths.list, 'utf8');
-  // myWriteStream.write(url);
-  // myWriteStream.on("end",function(){
-  //   //callback();
-  //   console.log("I am writing into the file " + url)
-  // })
-
-  // fs.writeFile(url,function(err){
-  //   console.log(err);
-  // })
-  // console.log("I have done writing to file " + url)
-
 };
  
 exports.isUrlArchived = function(url, callback) {
-	var completeUrl = exports.paths.archivedSites + "/" + url;
+  var completeUrl = exports.paths.archivedSites + "/" + url;
   fs.exists(completeUrl,function(exists){
-    callback(exists);
+    	callback(exists);
 	});
 };
 
 exports.downloadUrls = function(urls) {
+
+	urls.forEach(function(eachUrl) {
+		exports.isUrlInList(eachUrl, function(existsList) {
+			// if the URL is not in the list
+			if(!existsList) {
+				exports.isUrlArchived(eachUrl, function(existsArchive) {
+					// if the URL and resource is not in the archive
+					if(!existsArchive) {
+						var file = fs.createWriteStream(exports.paths.archivedSites + '/' + eachUrl);
+						// then get the resource 
+						http.get('http://' + eachUrl + '/index.html', function(res) {
+
+					    	res.on('data', function(data) {
+					            file.write(data);
+					        }).on('end', function() {
+					            file.end();
+					            // console.log(eachUrl + ' is downloaded to ' + exports.paths.archivedSites + '/' + eachUrl + ' file');
+					        });
+					    });
+					}
+				})
+			}
+		})
+	})
+
+   // http.get(options, function(res) {
+   //  res.on('data', function(data) {
+   //          file.write(data);
+   //      }).on('end', function() {
+   //          file.end();
+   //          console.log(file_name + ' downloaded to ' + DOWNLOAD_DIR);
+   //      });
+   //  });
 };
-
-
 
 exports.displayList = function() {
   var myReadStream = fs.createReadStream(exports.paths.list, 'utf8');

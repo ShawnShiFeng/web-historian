@@ -30,14 +30,9 @@ exports.handleRequest = function (req, res) {
       });
     }
   }
-//   fs.readFile(FILE_LOCATION, function (err, data) {
-//   if (err) throw err;
-//   if(data.indexOf('search string') >= 0){
-//    console.log(data)
-//   }
-// });
-  // handle POST requests
+
   else if (req.method === 'POST') {
+  	console.log("hello?");
     var body = "";
     req.on('data', function(chunk) {
       body+=chunk;
@@ -45,20 +40,13 @@ exports.handleRequest = function (req, res) {
     req.on('end', function() {
       fileLocationUrl = body.split("=")[1]
       archive.isUrlInList(fileLocationUrl, function(isURL) {
-        // if(listData.indexOf(fileLocationUrl) < 0) {
-        //   archive.addUrlToList(fileLocationUrl, function(whatever) {
-        //     console.log("succeeded");
-        //   })
-        // } else {
-        //   console.log("file already exist!");
-        // }
         if(!isURL){
-          console.log(fileLocationUrl);
-          console.log("url needs to be added to txt");
+          // console.log("url needs to be added to txt");
           archive.addUrlToList(fileLocationUrl,function(){
-            //console.log("Appended the url to list")
           })
-        }
+        } 
+          res.writeHead(302, httpHelpers.headers);
+          res.end();
       });
 
     })
