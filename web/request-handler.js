@@ -32,7 +32,6 @@ exports.handleRequest = function (req, res) {
   }
 
   else if (req.method === 'POST') {
-  	console.log("hello?");
     var body = "";
     req.on('data', function(chunk) {
       body+=chunk;
@@ -41,10 +40,12 @@ exports.handleRequest = function (req, res) {
       fileLocationUrl = body.split("=")[1]
       archive.isUrlInList(fileLocationUrl, function(isURL) {
         if(!isURL){
-          // console.log("url needs to be added to txt");
           archive.addUrlToList(fileLocationUrl,function(){
           })
-        } 
+          console.log("url is appended");
+        } else {
+        	console.log("url already exist");
+        }
           res.writeHead(302, httpHelpers.headers);
           res.end();
       });

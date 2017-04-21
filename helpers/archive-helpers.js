@@ -37,7 +37,6 @@ exports.readListOfUrls = function(callback) {
   myReadStream.on ('end', function() {
     callback(body.split("\n"));
   });
-
 };
 
 exports.isUrlInList = function(url, callback) {
@@ -51,25 +50,23 @@ exports.isUrlInList = function(url, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
-  fs.appendFile(exports.paths.list, url + '\n','utf8', function (err) {
-     if (err) {
-     	throw err;
-     } else {
-     	// exports.displayList();
-     	callback();
-     }
-  });
+  	fs.appendFile(exports.paths.list, url + '\n','utf8', function (err) {
+	    if (err) {
+	     	throw err;
+	    } else {
+	     	callback();
+	    }
+  	});
 };
  
 exports.isUrlArchived = function(url, callback) {
-  var completeUrl = exports.paths.archivedSites + "/" + url;
-  fs.exists(completeUrl,function(exists){
+  	var completeUrl = exports.paths.archivedSites + "/" + url;
+  	fs.exists(completeUrl,function(exists){
     	callback(exists);
 	});
 };
 
 exports.downloadUrls = function(urls) {
-
 	urls.forEach(function(eachUrl) {
 		exports.isUrlInList(eachUrl, function(existsList) {
 			// if the URL is not in the list
@@ -80,7 +77,6 @@ exports.downloadUrls = function(urls) {
 						var file = fs.createWriteStream(exports.paths.archivedSites + '/' + eachUrl);
 						// then get the resource 
 						http.get('http://' + eachUrl + '/index.html', function(res) {
-
 					    	res.on('data', function(data) {
 					            file.write(data);
 					        }).on('end', function() {
@@ -93,15 +89,31 @@ exports.downloadUrls = function(urls) {
 			}
 		})
 	})
+};
 
-   // http.get(options, function(res) {
-   //  res.on('data', function(data) {
-   //          file.write(data);
-   //      }).on('end', function() {
-   //          file.end();
-   //          console.log(file_name + ' downloaded to ' + DOWNLOAD_DIR);
-   //      });
-   //  });
+exports.downloadUrls2 = function(urls) {
+	urls.forEach(function(eachUrl) {
+		exports.isUrlInList(eachUrl, function(existsList) {
+			// if the URL is in the list
+			if(existsList) {
+				exports.isUrlArchived(eachUrl, function(existsArchive) {
+					// if the URL and resource is not in the archive
+					if(!existsArchive) {
+						var file = fs.createWriteStream(exports.paths.archivedSites + '/' + eachUrl);
+						// then get the resource 
+						http.get('http://' + eachUrl + '/index.html', function(res) {
+					    	res.on('data', function(data) {
+					            file.write(data);
+					        }).on('end', function() {
+					            file.end();
+					            // console.log(eachUrl + ' is downloaded to ' + exports.paths.archivedSites + '/' + eachUrl + ' file');
+					        });
+					    });
+					}
+				})
+			}
+		})
+	})
 };
 
 exports.displayList = function() {
@@ -112,6 +124,7 @@ exports.displayList = function() {
     body += chunk
   });
   myReadStream.on ('end', function() {
+  	console.log(exports.paths.list);
     console.log(body);
   });
 };
